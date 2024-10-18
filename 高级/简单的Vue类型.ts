@@ -1,15 +1,21 @@
 type getReturn<T> = T extends () => infer R ? R : never;
 
+
+type Idata = {}
 interface IOptions {
-    data: () => getReturn<data>,
+    data: Idata,
     computed: {
-        [key: string]: () => any,
+        [key: string]: {
+            get?: () => any,
+            set?: () => any,
+        } | (() => any),
     },
     methods: {
-        [key: string]: () => any,
+        [key: string]: any,
     },
 }
-declare const SimpleVue: (options: IOptions) => any;
+
+declare function SimpleVue(options: IOptions): any;
 
 const instance = SimpleVue({
     data() {
@@ -21,7 +27,7 @@ const instance = SimpleVue({
     },
     computed: {
         fullname() {
-            return this.firstname + ' ' + this.lastname
+            return this.firstname + ' ' + this.lastname + ' ' + this.testname;
         }
     },
     methods: {
@@ -30,6 +36,24 @@ const instance = SimpleVue({
         }
     }
 })
+
+// 定义 this 的接口
+interface ITest {
+    getName: () => void;
+}
+
+// 构造函数中显式声明 this 的上下文类型
+function Test(this: ITest) {
+    this.getName();
+}
+
+// 给 prototype 添加方法
+Test.prototype.getName = function () {
+    console.log('zxy');
+};
+
+// 使用构造函数
+const t = new (Test as any)(); // 注意，TypeScript 不允许 new 操作符直接用于没有类定义的构造函数，使用 `as any`
 
 
 export { }
